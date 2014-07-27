@@ -3,12 +3,11 @@ Illumina_tools
 
 Tools for handling Illumina 
 
-#Scripts/Programs Included
-==========================
+##Scripts/Programs Included
 
 * DesignPrimers.py
 
-##DesignPrimers.py
+###DesignPrimers.py
 
 Helps with gene specific portion of the primer deisgn for Illumina paired end projects.
 

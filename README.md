@@ -51,7 +51,7 @@ optional arguments:
                         what you have specified?
 ```
 
-1. You have the full sequence and the region of interest. The full sequence would be a vector, antibody, or extended portion of the genes you will design the primers on. The sequence of interest is the portin you wish to be resolved in the high throughput sequencing. Each should be contained in its own FASTA file.
+You have the full sequence and the region of interest. The full sequence would be a vector, antibody, or extended portion of the genes you will design the primers on. The sequence of interest is the portin you wish to be resolved in the high throughput sequencing. Each should be contained in its own FASTA file.
 
 ```
 
@@ -102,7 +102,7 @@ Maximum Paired-End Overlap: 35
 
 ```
 
-2. If you had a smaller region of interest you could use the 150 kit on the NextSeq with the -pr
+If you had a smaller region of interest you could use the 150 kit on the NextSeq with the -pr
 
 ```
 >Full_gene
@@ -136,7 +136,7 @@ Maximum Paired-End Overlap: 30
 
 ```
 
-3. However, say your area of interest can have insertions. You can mark that with -in flag.
+However, say your area of interest can have insertions. You can mark that with -in flag.
 
 
 ```

@@ -13,19 +13,19 @@ Helps with gene specific portion of the primer deisgn for Illumina paired end pr
 
 ###Requirements:
 
-*Biopython (1.44 or newer - http://biopython.org/wiki/Download)
+ * Biopython (1.44 or newer - http://biopython.org/wiki/Download)
 
-*eprimer32 from the EMBOSS suite (http://emboss.sourceforge.net/download/)
+ * eprimer32 from the EMBOSS suite (http://emboss.sourceforge.net/download/)
 
-*primer32_core and primer3_config(http://sourceforge.net/projects/primer3/files/primer3/2.3.6/)
+ * primer32_core and primer3_config(http://sourceforge.net/projects/primer3/files/primer3/2.3.6/)
 
-**Note primer32_core is downloaded as primer3_core. You must change the name to primer32_core. This is to do to some wrapper functionallity from eprimer32. 
+**Note primer32_core is downloaded as primer3_core. You must change the name to primer32_core. This is to do to some wrapper functionallity from eprimer32.** 
 
-**It's easiest to just put eprimer32, primer32_core, and primer3_config in the same directory that you call DesignPrimers.py in...I could write some copying and temp file functionality, but that is a lot of extra-uneeded work.
+**It's easiest to just put eprimer32, primer32_core, and primer3_config in the same directory that you call DesignPrimers.py in...I could write some copying and temp file functionality, but that is a lot of extra-uneeded work.**
 
 ###Examples
 
-'''
+```
 ->./DesignPrimers.py --help
 usage: Illumina Primer Design [-h] -fr full_region.fasta -ri
                               region_of_interest.fasta [-pr {150,300,500}]
@@ -49,4 +49,4 @@ optional arguments:
                         Will there be any unexpected inseritons. For instance,
                         will the readlength of interest be any longer than
                         what you have specified?
-'''
+```

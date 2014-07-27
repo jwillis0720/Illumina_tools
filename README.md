@@ -3,7 +3,7 @@ Illumina_tools
 
 Tools for handling Illumina 
 
-#Scripts Programs Included
+#Scripts/Programs Included
 ==========================
 
 * DesignPrimers.py
@@ -12,7 +12,7 @@ Tools for handling Illumina
 
 Helps with gene specific portion of the primer deisgn for Illumina paired end projects.
 
-#Requirements:
+###Requirements:
 
 *Biopython (1.44 or newer - http://biopython.org/wiki/Download)
 *eprimer32 from the EMBOSS suite (http://emboss.sourceforge.net/download/)
@@ -22,7 +22,7 @@ Helps with gene specific portion of the primer deisgn for Illumina paired end pr
 
 **It's easiest to just put eprimer32, primer32_core, and primer3_config in the same directory that you call DesignPrimers.py in...I could write some copying and temp file functionality, but that is a lot of extra-uneeded work.
 
-#Examples
+###Examples
 
 '''
 ->./DesignPrimers.py --help

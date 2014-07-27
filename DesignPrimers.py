@@ -1,6 +1,7 @@
 import argparse
 import tempfile
 import sys
+from collections import OrderedDict
 try:
     import Bio.SeqIO
     from Bio.Emboss.Applications import Primer3Commandline as P3CL
@@ -48,6 +49,12 @@ class ArgumentParsingIllumina():
             will the readlength of interest\
             be any longer than what you have specified?")
 
+        # self.arg_parse.add_argument(
+        #     '-st', '--stagger', default=False,
+        #     action="store_true",
+        #     help="Do you want to stagger primers to add ambiguous nucleotides \
+        #     to the primers so they are not in the same frame")
+
         self.arg_parse = self.arg_parse.parse_args()
         self.validate_region_of_interest()
 
@@ -81,6 +88,7 @@ class IlluminaPrimer():
         self.region_of_interest_file_name = cla_dict['region_of_interest']
         self.insertion = cla_dict['insertion']
         self.region_length = cla_dict['paired_read_lengths']
+        #self.stagger = cla_dict['stagger']
 
         # Needed for illumina
         # Primer needs to include this sequence
@@ -120,60 +128,104 @@ class IlluminaPrimer():
             self.full_seq)
 
     def run(self):
-        for primer in self.p3:
-            self.get_primer_info(primer)
+        '''Run the Illumina Primer creator'''
+
+        print "\nYour run parameters:\
+              \n--------------------\
+              \nFull Region:\n{0}\
+              \n\nRegion of Interest:\n{1}\
+              \n\nPosible Insertion Lenght:{2}\
+              \nRead Length:{3}\
+              \nPaird-End Read Length:{4}\
+              \n-----------------------\n".format(self.full_seq,
+                                                  self.seq_to_include,
+                                                  self.insertion,
+                                                  self.region_length,
+                                                  self.region_length / 2)
+        for rank, primer in enumerate(self.p3, start=1):
+            print "Rank: {0}\
+                  \n---------".format(rank)
+            d = self.get_primer_info(primer)
+            for parameter in d:
+                print "{0}: {1}".format(parameter, d[parameter])
+            print
 
     def get_primer_info(self, primer):
-        forward_read = primer.forward_seq
+        '''Where the magic happens, does the overlap conversions, 
+        returns all the information in a dicitonary'''
+
+        # First get all the forward stuff
+        forward_primer = primer.forward_seq
         forward_gc = primer.forward_gc
-        forward_start = primer.forward_start
         forward_tm = primer.forward_tm
-        forward_length = primer.forward_length
 
-        reverse_read = primer.reverse_seq
+        # Then get all the reverse stuff
+        reverse_primer = primer.reverse_seq
         reverse_gc = primer.reverse_gc
-        reverse_start = primer.reverse_start
         reverse_tm = primer.reverse_tm
-        reverse_length = primer.reverse_length
 
+        # The actual illumina read length
         illumina_read_length = self.region_length / 2
 
+        # The possible insertions that can happen given area of interest
         possible_insertion = self.insertion
 
-        _index_of_roi = self.full_seq.index(self.seq_to_include)
-        _index_of_fwprimer = self.full_seq.index(forward_read)
-        _index_of_revprimer = self.full_seq.index(str(
-            Seq(str(reverse_read), generic_dna).reverse_complement()))
-        _index_of_end_of_roi = _index_of_roi + len(self.seq_to_include)
+        # Magic
+        # Get rev complement of returned primer
+        rev_primer_rev_complement = str(Seq(
+            reverse_primer, generic_dna).reverse_complement())
 
+        # Index of region of interest
+        _index_of_roi = self.full_seq.index(
+            self.seq_to_include)
+
+        # Index of forward primer
+        _index_of_fwprimer = self.full_seq.index(
+            forward_primer)
+
+        '''The coverage is the index of the forward primer added 
+        to a paird end illumina read length - 
+        the index of the region of interest, draw it out!'''
         forward_coverage = (
             _index_of_fwprimer + illumina_read_length) - _index_of_roi
 
-        reverse_coverage = _index_of_end_of_roi - (
-            _index_of_revprimer + len(reverse_read) - illumina_read_length)
+        # Index of the end of the region of interest
+        _index_of_end_of_roi = _index_of_roi + len(self.seq_to_include)
 
-        overlap = (
-            forward_coverage + reverse_coverage) - (len(self.seq_to_include) + possible_insertion)
+        # Index of the end of the reverse primer
+        _index_of_revprimer = self.full_seq.index(
+            rev_primer_rev_complement) + len(reverse_primer)
 
-        print "Forward Primer:{0}\nForward Read Length:{1}\
-               \nReverse Primer:{2}\nReverse Read Length:{3}\
-               \nForward Coverage:{4}\
-               \nReverse Coverage:{5}\
-               \nMinimum Overlap: {6}".format(
-            forward_read,
-            illumina_read_length,
-            reverse_read,
-            illumina_read_length,
-            forward_coverage,
-            reverse_coverage,
-            overlap)
+        '''The reverse coverage is the illumina read length subtracted
+        from the index of the reverse primer subtracted from the end 
+        of the region of interest '''
+        reverse_coverage = _index_of_end_of_roi - \
+            (_index_of_revprimer - illumina_read_length)
 
+        '''The overlap is the sequence of interest length plus the 
+        possible insertions, subtracted from both of the coverages'''
+        min_overlap = (
+            forward_coverage + reverse_coverage) - len(self.seq_to_include)
+        max_overlap = min_overlap + possible_insertion
+
+        if min_overlap < 0:
+            return False
+
+        return_dict = OrderedDict()
+
+        return_dict['Forward Primer'] = forward_primer
+        return_dict['Forward Primer Length'] = len(forward_primer)
+        return_dict['Forward GC Content'] = forward_gc
+        return_dict['Forward Primer Tm'] = forward_tm
+        return_dict['Reverse Primer'] = reverse_primer
+        return_dict['Reverse Primer Length'] = len(reverse_primer)
+        return_dict['Reverse GC Content'] = reverse_gc
+        return_dict['Reverse Primer Tm'] = reverse_tm
+        return_dict['Forward Region of Interest Coverage'] = forward_coverage
+        return_dict['Reverse Region of Interest Coverage'] = reverse_coverage
+        return_dict['Minimum Paired-End Overlap'] = min_overlap
+        return_dict['Maximum Paired-End Overlap'] = max_overlap
+        return return_dict
 
 if __name__ == '__main__':
     IlluminaPrimer().run()
-
-        # aline = pw2.align.localxs(
-        #    self.full_seq,
-        #    p3[0].__dict__['forward_seq'],
-        #    -10, -10)[0]
-        # print aline[0] + "\n" + aline[1]
